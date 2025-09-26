@@ -19,6 +19,7 @@ public class IsoCommander : IsoCharacterController
 
     // Variables
     protected Vector2 _currentMousePosition;
+    [SerializeField] protected GameObject[] _units = default;
     [SerializeField] protected List<GameObject> _currentSelected;
 
     // Control States
@@ -28,9 +29,13 @@ public class IsoCommander : IsoCharacterController
     protected Vector2 _dragEndPosition;
     protected float _dragThreshold = 10f; // Pixels
 
+    // Debugging
+    protected Texture2D _selectionTexture;
+    [SerializeField] protected Color _selectionColor = default;
+
     // Configuration
     public LayerMask selectableLayers;
-    public LayerMask controlableLayers;
+    public LayerMask controllableLayers;
     public bool panTowardsMouse;
 
     protected override void Awake()
@@ -47,6 +52,11 @@ public class IsoCommander : IsoCharacterController
 
         TryGetComponent<CameraComponent>(out _CameraComponent);
         TryGetComponent<ScreenToPlaneComponent>(out _ScreenToPlaneComponent);
+
+        // 1x1 white texture
+        _selectionTexture = new Texture2D(1, 1);
+        _selectionTexture.SetPixel(0, 0, Color.white);
+        _selectionTexture.Apply();
     }
 
     protected override void Update()
@@ -62,6 +72,12 @@ public class IsoCommander : IsoCharacterController
         }
     }
 
+    bool IsControllable(GameObject unit)
+    {
+        // Convert unit.layer to a bitmask and AND with controllable mask
+        return (controllableLayers.value & (1 << unit.layer)) != 0;
+    }
+
     void TrySelectUnits()
     {
         float dragDistance = Vector2.Distance(_dragStartPosition, _dragEndPosition);
@@ -71,7 +87,7 @@ public class IsoCommander : IsoCharacterController
             // Select a single unit
             Ray ray = _CameraComponent.GetCamera().ScreenPointToRay(_currentMousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 999f, controlableLayers))
+            if (Physics.Raycast(ray, out RaycastHit hit, 999f, controllableLayers))
             {
                 if (!_actionIsModified)
                 {
@@ -89,33 +105,25 @@ public class IsoCommander : IsoCharacterController
         }
         else
         {
-            // Select mutliple units
+            Rect selectionRect = ScreenToRect(_dragStartPosition, _dragEndPosition);
 
-            // Fix this later, create a better method of getting all Units
-            GameObject[] units = GameObject.FindGameObjectsWithTag("Unit");
-
-            foreach (GameObject unit in units)
-            {
-                if ((controlableLayers & (1 << unit.layer)) == 0) continue;
-                Renderer unitRenderer = unit.GetComponentInChildren<Renderer>();
-                if (unitRenderer != null) continue;
-
-                Bounds unitBounds = unitRenderer.bounds;
-                Vector3 screenMin = _CameraComponent.GetCamera().WorldToScreenPoint(unitBounds.min);
-                Vector3 screenMax = _CameraComponent.GetCamera().WorldToScreenPoint(unitBounds.max);
-
-                Rect unitRect = Rect.MinMaxRect
-                (
-                    Mathf.Min(screenMin.x, screenMax.x),
-                    Mathf.Min(screenMin.y, screenMax.y),
-                    Mathf.Max(screenMin.x, screenMax.x),
-                    Mathf.Max(screenMin.y, screenMax.y)
-                );
-
-                
-            }
-
+            // Select multiple units
             _currentSelected.Clear();
+
+            _units = GameObject.FindGameObjectsWithTag("Unit");
+
+            foreach (GameObject unit in _units)
+            {
+                if (!IsControllable(unit)) continue;
+                Renderer unitRenderer = unit.GetComponent<Renderer>();
+                if (unitRenderer == null) continue;
+                Rect unitRect = RendererBoundsToRect(unitRenderer, _CameraComponent.GetCamera());
+
+                if (selectionRect.Overlaps(unitRect, true))
+                {
+                    _currentSelected.Add(unit);
+                }
+            }
         }
     }
 
@@ -125,9 +133,11 @@ public class IsoCommander : IsoCharacterController
         {
             case InputActionPhase.Performed:
                 _dragStartPosition = _currentMousePosition;
+                _actionIsDragging = true;
                 break;
             case InputActionPhase.Canceled:
                 _dragEndPosition = _currentMousePosition;
+                _actionIsDragging = false;
                 TrySelectUnits();
                 break;
         }
@@ -167,5 +177,65 @@ public class IsoCommander : IsoCharacterController
         InputService.Disconnect("Gameplay/Look", LookWithMouse);
         InputService.Disconnect("Gameplay/Move", MoveWithKeyboard);
         InputService.Disconnect("Gameplay/Scroll", Zoom);
+    }
+
+    Rect ScreenToRect(Vector2 startPosition, Vector2 endPosition)
+    {
+        // Calculate Left Corner of Rect
+        float x = Mathf.Min(startPosition.x, endPosition.x);
+        float y = Mathf.Min(Screen.height - startPosition.y, Screen.height - endPosition.y); // flip Y
+
+        float width = Mathf.Abs(endPosition.x - startPosition.x);
+        float height = Mathf.Abs(endPosition.y - startPosition.y);
+
+        return new Rect(x, y, width, height);
+    }
+
+    Rect RendererBoundsToRect(Renderer renderer, Camera cam)
+    {
+        Bounds b = renderer.bounds;
+
+        Vector3[] corners = new Vector3[8];
+        corners[0] = new Vector3(b.min.x, b.min.y, b.min.z);
+        corners[1] = new Vector3(b.min.x, b.min.y, b.max.z);
+        corners[2] = new Vector3(b.min.x, b.max.y, b.min.z);
+        corners[3] = new Vector3(b.min.x, b.max.y, b.max.z);
+        corners[4] = new Vector3(b.max.x, b.min.y, b.min.z);
+        corners[5] = new Vector3(b.max.x, b.min.y, b.max.z);
+        corners[6] = new Vector3(b.max.x, b.max.y, b.min.z);
+        corners[7] = new Vector3(b.max.x, b.max.y, b.max.z);
+
+        float xMin = float.MaxValue;
+        float yMin = float.MaxValue;
+        float xMax = float.MinValue;
+        float yMax = float.MinValue;
+
+        for (int i = 0; i < corners.Length; i++)
+        {
+            Vector3 screenPoint = cam.WorldToScreenPoint(corners[i]);
+
+            screenPoint.y = Screen.height - screenPoint.y;
+
+            xMin = Mathf.Min(xMin, screenPoint.x);
+            yMin = Mathf.Min(yMin, screenPoint.y);
+            xMax = Mathf.Max(xMax, screenPoint.x);
+            yMax = Mathf.Max(yMax, screenPoint.y);
+        }
+
+        return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+    }
+    
+    void OnGUI()
+    {
+        if (_actionIsDragging)
+        {
+            Rect rect = ScreenToRect(_dragStartPosition, Mouse.current.position.ReadValue());
+
+            // Set color and draw
+            Color oldColor = GUI.color;
+            GUI.color = _selectionColor;
+            GUI.DrawTexture(rect, _selectionTexture);
+            GUI.color = oldColor;
+        }
     }
 }

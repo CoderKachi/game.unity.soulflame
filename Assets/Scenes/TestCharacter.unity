@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 71186587}
   - component: {fileID: 71186586}
   - component: {fileID: 71186585}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: StageRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 386896858}
   - component: {fileID: 386896857}
   - component: {fileID: 386896856}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: StageLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -578,7 +578,7 @@ GameObject:
   - component: {fileID: 1275217799}
   - component: {fileID: 1275217798}
   - component: {fileID: 1275217797}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Stage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -841,9 +841,9 @@ MonoBehaviour:
   zoomLevel:
     min: 1
     max: 6
-  panWeightX: 0.1
-  panWeightY: 0.1
-  panWeightZ: 0.1
+  panWeightX: 0
+  panWeightY: 0
+  panWeightZ: 0
   smoothSpeed: 4
   snapToPosition: 0
   snapToRotation: 0
@@ -1002,11 +1002,13 @@ MonoBehaviour:
   _moveVectorRotation: 0
   _lookTarget: {fileID: 0}
   _lookSpeed: 8
+  _units: []
   _currentSelected: []
+  _selectionColor: {r: 1, g: 1, b: 1, a: 0.30588236}
   selectableLayers:
     serializedVersion: 2
     m_Bits: 576
-  controlableLayers:
+  controllableLayers:
     serializedVersion: 2
     m_Bits: 512
   panTowardsMouse: 1
