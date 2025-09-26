@@ -216,6 +216,7 @@ public class MovementComponent : MonoBehaviour
         if (path != null)
         {
             path.DrawWithGizmos();
+            
         }
     }
 }

@@ -374,12 +374,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 219279991}
-  - component: {fileID: 219279990}
-  - component: {fileID: 219279989}
-  - component: {fileID: 219279988}
   - component: {fileID: 219279987}
+  - component: {fileID: 219279988}
   - component: {fileID: 219279986}
   - component: {fileID: 219279985}
+  - component: {fileID: 219279989}
+  - component: {fileID: 219279990}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  reset: 0
+  reset: 1
   posOffset: {x: 0, y: 1, z: 0}
   target: {fileID: 0}
   repelStrength: 3
@@ -532,7 +532,7 @@ Transform:
   m_GameObject: {fileID: 219279984}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16, y: 0, z: -20}
+  m_LocalPosition: {x: -16, y: 1.89, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -833,13 +833,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   gridWorldSize: {x: 100, y: 100}
-  nodeRadius: 2
-  nodeSkin: 2
-  walkableReigons:
-  - terrainMask:
-      serializedVersion: 2
-      m_Bits: 64
-    terrainPenalty: 1
+  nodeRadius: 1
+  nodeSkin: 0.9
+  walkableReigons: []
 --- !u!4 &1322200091
 Transform:
   m_ObjectHideFlags: 0
