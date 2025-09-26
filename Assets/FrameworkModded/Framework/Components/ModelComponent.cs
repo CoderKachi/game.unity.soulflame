@@ -10,6 +10,8 @@ public class ModelComponent : MonoBehaviour
 
     public virtual void SetRotation(Quaternion setRotation)
     {
+        if (model == null) return;
+        
         Vector3 setEuler = setRotation.eulerAngles;
 
         if (freezeRotation.x) setEuler.x = 0;
@@ -21,13 +23,16 @@ public class ModelComponent : MonoBehaviour
 
     public virtual Quaternion GetRotation()
     {
-        if (model == null) throw new Exception("ModelComponent has no Model set!");
+        //if (model == null) throw new Exception("ModelComponent has no Model set!");
+        if (model == null) return default;
+
         return model.transform.rotation;
     }
 
     public virtual Quaternion GetRotationTowards(Vector3 targetPosition)
     {
-        if (model == null) throw new Exception("ModelComponent has no Model set!");
+        //if (model == null) throw new Exception("ModelComponent has no Model set!");
+        if (model == null) return default;
 
         Vector3 direction = targetPosition - model.transform.position;
 

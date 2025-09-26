@@ -19,6 +19,9 @@ public class IsoPlayerController : IsoCharacterController
     // Variables
     protected Vector2 _currentMousePosition;
 
+    // Configuration
+    public bool panTowardsMouse;
+
     protected override void Awake()
     {
         base.Awake();
@@ -39,6 +42,11 @@ public class IsoPlayerController : IsoCharacterController
 
         Move(_moveDirection);
         LookTowards(worldMousePosition);
+
+        if (panTowardsMouse)
+        {
+            _CameraComponent.PanTowards(worldMousePosition);
+        }
     }
 
     void LookWithMouse(InputAction.CallbackContext context)

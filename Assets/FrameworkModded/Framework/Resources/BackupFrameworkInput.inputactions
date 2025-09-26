@@ -1,5 +1,5 @@
 {
-    "name": "FrameworkInput",
+    "name": "BackupFrameworkInput",
     "maps": [
         {
             "name": "Gameplay",
@@ -42,7 +42,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "ActionPrimaryModifier",
+                    "name": "Roll",
                     "type": "Button",
                     "id": "446f6275-06db-40cb-9e17-63096682f3fe",
                     "expectedControlType": "",
@@ -170,7 +170,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";MNK",
-                    "action": "ActionPrimaryModifier",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -181,7 +181,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "ActionPrimaryModifier",
+                    "action": "Roll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d4aa066-8d2d-4062-8bcf-553b88ba8df3",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";MNK",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

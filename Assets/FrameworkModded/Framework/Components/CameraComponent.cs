@@ -7,7 +7,7 @@ public class CameraComponent : MonoBehaviour
     [Header("Camera Settings")]
     public Vector3 offset = Vector3.zero;
     public Vector3 eulerAngle = Vector3.zero;
-    [Range(0f, 100f)] public float distance = 50f;
+    [Range(0f, 200f)] public float distance = 50f;
     public MinMaxInt zoomLevel = new MinMaxInt(1, 6);
     [Range(0f, 1f)] public float panWeightX = 0.5f;
     [Range(0f, 1f)] public float panWeightY = 0.5f;
