@@ -38,17 +38,16 @@ public class PathFinding : MonoBehaviour
 
             Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
             HashSet<Node> closedSet = new HashSet<Node>();
-
             openSet.Add(startNode);
+
             while (openSet.Count > 0)
             {
                 Node currentNode = openSet.RemoveFirst();
-            
                 closedSet.Add(currentNode);
-
                 if (currentNode == targetNode)
                 {
                     sw.Stop();
+                    
                     print("Path Found: " + sw.ElapsedMilliseconds + "ms");
                     pathSuccess = true;
                     break;
@@ -60,7 +59,7 @@ public class PathFinding : MonoBehaviour
                         continue;
                     }
 
-                    int newMoveCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour) + neighbour.movementPenalty;
+                    int newMoveCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
                     if (newMoveCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
                     {
                         neighbour.gCost = newMoveCostToNeighbour;
