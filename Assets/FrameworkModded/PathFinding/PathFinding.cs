@@ -6,7 +6,7 @@ using System.Linq;
 using System;
 public class PathFinding : MonoBehaviour
 {
-    GridPi grid;
+    GridComponent grid;
     PathRequestManager requestManager;
     [SerializeField]
     LayerMask wallMask;
@@ -15,7 +15,7 @@ public class PathFinding : MonoBehaviour
     private void Awake()
     {
         requestManager = GetComponent<PathRequestManager>();
-        grid = GetComponent<GridPi>();
+        grid = GetComponent<GridComponent>();
     }
 
 
@@ -49,7 +49,7 @@ public class PathFinding : MonoBehaviour
                 if (currentNode == targetNode)
                 {
                     sw.Stop();
-                    //print("Path Found: " + sw.ElapsedMilliseconds + "ms");
+                    print("Path Found: " + sw.ElapsedMilliseconds + "ms");
                     pathSuccess = true;
                     break;
                 }
@@ -102,19 +102,22 @@ public class PathFinding : MonoBehaviour
     {
         List<Vector3> waypoints = new List<Vector3>();
         if (path.Count == 0) return waypoints.ToArray();
-        
+
+
         Vector3 locationOld = path[0].worldPosition;
         waypoints.Add(path[0].worldPosition);
         for (int i = 1; i < path.Count; i++)
         {
-            RaycastHit hit;
+            waypoints.Add(path[i].worldPosition);
+            locationOld = path[i].worldPosition;
+            /*RaycastHit hit;
             
             if (Physics.SphereCast(locationOld, .9f, path[i].worldPosition-locationOld, out hit, Vector3.Distance(path[i].worldPosition, locationOld), wallMask))
             {
                 waypoints.Add(path[i].worldPosition);
                 locationOld = path[i].worldPosition;
             }
-            //waypoints.Add(path[i].worldPosition);
+            //waypoints.Add(path[i].worldPosition);*/
         }
         return waypoints.ToArray();
     }

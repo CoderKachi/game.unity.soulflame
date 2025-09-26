@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
+using System.IO;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,6 +12,9 @@ public class MovementComponent : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5f;
     private float moveSpeedInitial;
+
+    [SerializeField]
+    bool reset = false;
 
     //
     //float dashMultiplier = 2f;
@@ -30,6 +34,8 @@ public class MovementComponent : MonoBehaviour
     public LayerMask collisionMask;
     public LayerMask pushMask;
 
+    PathP path;
+
     [HideInInspector]
     public Vector2 moveVector;
 
@@ -47,6 +53,23 @@ public class MovementComponent : MonoBehaviour
             }
         }
 
+    }
+    private void Start()
+    {
+        
+        //Invoke("CancelPath", 5);
+    }
+
+    public void OnPathFound(Vector3[] waypoints, bool pathSuccessful)
+    {
+        if (pathSuccessful)
+        {
+            path = new PathP(waypoints, transform.position);
+        }
+        else
+        {
+            Debug.Log("path not found");
+        }
     }
 
     public void Move(Vector2 direction)
@@ -77,11 +100,6 @@ public class MovementComponent : MonoBehaviour
     {
         moveVector = input;
     }
-
-    private void Start()
-    {
-
-    }
     
     private void Update()
     {
@@ -89,7 +107,12 @@ public class MovementComponent : MonoBehaviour
         {
             Move(moveVector);
         }
-
+        if (reset)
+        {
+            reset = false;
+            PathRequestManager.RequestPath(transform.position, new Vector3(7, 0.5f, 15), OnPathFound);
+        }
+        
         //Repel();
     }
 
@@ -186,5 +209,13 @@ public class MovementComponent : MonoBehaviour
     public void UpdatePower(int value)
     {
         moveSpeed = moveSpeedInitial + ((value+1)/ 200f);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (path != null)
+        {
+            path.DrawWithGizmos();
+        }
     }
 }

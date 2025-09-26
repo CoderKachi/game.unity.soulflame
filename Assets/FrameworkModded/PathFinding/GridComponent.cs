@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridPi : MonoBehaviour
+public class GridComponent : MonoBehaviour
 {
     public bool displayGridGizmos;
     public LayerMask unwalkableMask, floorMask;
@@ -74,7 +74,7 @@ public class GridPi : MonoBehaviour
                     }
                     if((Physics.CheckSphere(worldpoint, nodeSkin*2f, unwalkableMask)))
                     {
-                        movementPenalty = 20;
+                        movementPenalty = 0;
                     }
                 }
                 grid[x, y] = new Node(walkable, worldpoint, x, y, movementPenalty);
@@ -105,8 +105,8 @@ public class GridPi : MonoBehaviour
 
     public Node NodeFromWorldPoint(Vector3 worldPosition)
     {
-        float percentX = (worldPosition.x / gridWorldSize.x) + 0.5f;
-        float percentY = (worldPosition.z / gridWorldSize.y) + 0.5f;
+        float percentX = (worldPosition.x / gridWorldSize.x) + .5f;
+        float percentY = (worldPosition.z / gridWorldSize.y) + .5f;
         percentX = Mathf.Clamp01(percentX);
         percentY = Mathf.Clamp01(percentY);
         int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);

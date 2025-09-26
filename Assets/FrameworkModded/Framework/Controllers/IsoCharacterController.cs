@@ -38,7 +38,7 @@ public class IsoCharacterController : MonoBehaviour
         {
             _lookPosition = _lookTarget.position;
         }
-
+        Move(_moveDirection);
         LookTowards(_lookPosition);
     }
 
