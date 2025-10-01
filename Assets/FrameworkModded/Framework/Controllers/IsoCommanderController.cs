@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Framework;
@@ -8,10 +9,11 @@ using static Framework;
 [RequireComponent(typeof(MovementComponent), typeof(ModelComponent), typeof(CameraComponent))]
 [RequireComponent(typeof(ScreenToPlaneComponent))]
 
-public class IsoCommander : IsoCharacterController
+public class IsoCommanderController : IsoCharacterController
 {
     // Services
     private InputService InputService;
+    private UnitService UnitService;
 
     // Components
     protected CameraComponent _CameraComponent;
@@ -19,8 +21,7 @@ public class IsoCommander : IsoCharacterController
 
     // Variables
     protected Vector2 _currentMousePosition;
-    [SerializeField] protected GameObject[] _units = default;
-    [SerializeField] protected List<GameObject> _currentSelected;
+    [SerializeField] protected List<IsoUnitController> _currentSelected;
 
     // Control States
     protected bool _actionIsModified = false;
@@ -30,8 +31,10 @@ public class IsoCommander : IsoCharacterController
     protected float _dragThreshold = 10f; // Pixels
 
     // Debugging
-    protected Texture2D _selectionTexture;
-    [SerializeField] protected Color _selectionColor = default;
+    protected Texture2D _uiTexture;
+    [SerializeField] protected Color _dragColor = new Color(255, 255, 255, 50);
+    [SerializeField] protected Color _selectedColor = new Color(0, 255, 0, 50);
+    [SerializeField] protected Color _controllableColor = new Color(0, 0, 255, 50);
 
     // Configuration
     public LayerMask selectableLayers;
@@ -43,6 +46,7 @@ public class IsoCommander : IsoCharacterController
         base.Awake();
 
         InputService = Game.GetService<InputService>();
+        UnitService = Game.GetService<UnitService>();
 
         InputService.Connect("Gameplay/ActionPrimary", ActionPrimary);
         InputService.Connect("Gameplay/ActionPrimaryModifier", ActionPrimaryModifier);
@@ -54,9 +58,9 @@ public class IsoCommander : IsoCharacterController
         TryGetComponent<ScreenToPlaneComponent>(out _ScreenToPlaneComponent);
 
         // 1x1 white texture
-        _selectionTexture = new Texture2D(1, 1);
-        _selectionTexture.SetPixel(0, 0, Color.white);
-        _selectionTexture.Apply();
+        _uiTexture = new Texture2D(1, 1);
+        _uiTexture.SetPixel(0, 0, Color.white);
+        _uiTexture.Apply();
     }
 
     protected override void Update()
@@ -72,10 +76,10 @@ public class IsoCommander : IsoCharacterController
         }
     }
 
-    bool IsControllable(GameObject unit)
+    bool IsControllable(IsoUnitController unit)
     {
         // Convert unit.layer to a bitmask and AND with controllable mask
-        return (controllableLayers.value & (1 << unit.layer)) != 0;
+        return (controllableLayers.value & (1 << unit.gameObject.layer)) != 0;
     }
 
     void TrySelectUnits()
@@ -89,14 +93,16 @@ public class IsoCommander : IsoCharacterController
 
             if (Physics.Raycast(ray, out RaycastHit hit, 999f, controllableLayers))
             {
-                if (!_actionIsModified)
-                {
-                    // Clear if not shift clicking
-                    _currentSelected.Clear();
-                }
+                // Clear if not shift clicking
+                if (!_actionIsModified) _currentSelected.Clear();
 
-                // Add the unit to the selected list
-                _currentSelected.Add(hit.collider.gameObject);
+                IsoUnitController unit = hit.collider.gameObject.GetComponent<IsoUnitController>();
+                if (unit == null) return;
+
+                if (!_currentSelected.Contains(unit))
+                {
+                    _currentSelected.Add(unit);
+                }
             }
             else
             {
@@ -105,23 +111,27 @@ public class IsoCommander : IsoCharacterController
         }
         else
         {
+            // Select multiple units
             Rect selectionRect = ScreenToRect(_dragStartPosition, _dragEndPosition);
 
-            // Select multiple units
-            _currentSelected.Clear();
+            // Clear if not shift clicking
+            if (!_actionIsModified) _currentSelected.Clear();
 
-            _units = GameObject.FindGameObjectsWithTag("Unit");
+            List<IsoUnitController> _units = UnitService.GetUnits();
 
-            foreach (GameObject unit in _units)
+            foreach (IsoUnitController unit in _units)
             {
                 if (!IsControllable(unit)) continue;
-                Renderer unitRenderer = unit.GetComponent<Renderer>();
+                Renderer unitRenderer = unit.gameObject.GetComponent<Renderer>();
                 if (unitRenderer == null) continue;
                 Rect unitRect = RendererBoundsToRect(unitRenderer, _CameraComponent.GetCamera());
 
                 if (selectionRect.Overlaps(unitRect, true))
                 {
-                    _currentSelected.Add(unit);
+                    if (!_currentSelected.Contains(unit))
+                    {
+                        _currentSelected.Add(unit);
+                    }
                 }
             }
         }
@@ -224,18 +234,42 @@ public class IsoCommander : IsoCharacterController
 
         return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
     }
-    
+
     void OnGUI()
     {
+        Rect dragRect = new Rect(0, 0, 0, 0);
+
         if (_actionIsDragging)
         {
-            Rect rect = ScreenToRect(_dragStartPosition, Mouse.current.position.ReadValue());
+            dragRect = ScreenToRect(_dragStartPosition, Mouse.current.position.ReadValue());
 
-            // Set color and draw
+            // Draw selection box
             Color oldColor = GUI.color;
-            GUI.color = _selectionColor;
-            GUI.DrawTexture(rect, _selectionTexture);
+            GUI.color = _dragColor;
+            GUI.DrawTexture(dragRect, _uiTexture);
             GUI.color = oldColor;
+        }
+
+        foreach (IsoUnitController unit in UnitService.GetUnits())
+        {
+            if (!IsControllable(unit)) continue;
+            Renderer unitRenderer = unit.GetComponent<Renderer>();
+            if (unitRenderer == null) continue;
+            Rect unitRect = RendererBoundsToRect(unitRenderer, _CameraComponent.GetCamera());
+
+            // Draw unit box
+            Color cacheColor = GUI.color;
+
+            if (_currentSelected.Contains(unit) || dragRect.Overlaps(unitRect, true))
+            {
+                GUI.color = _selectedColor;
+            }
+            else
+            {
+                GUI.color = _controllableColor;
+            }
+            GUI.DrawTexture(unitRect, _uiTexture);
+            GUI.color = cacheColor;
         }
     }
 }
