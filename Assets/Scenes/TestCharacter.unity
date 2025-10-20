@@ -460,11 +460,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad0da6c801c9fa04c9246ef7601cda9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveDirection: {x: 0, y: 0}
+  _moveDirection: {x: 0, y: 0, z: 0}
   _moveTarget: {fileID: 0}
   _moveVectorRotation: 0
   _lookTarget: {fileID: 0}
   _lookSpeed: 8
+  targetNode: {x: 0, y: 0, z: 0}
+  currentNode: {x: 0, y: 0, z: 0}
+  waypoints: []
+  visitedWaypoints: []
+  _waypointMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  _waypointMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  _visitedWaypointMaterial: {fileID: 2100000, guid: 7cff30c1e820d154b84eeeff7cd7372b, type: 2}
 --- !u!114 &1005944678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -502,7 +509,7 @@ MonoBehaviour:
   repelStrength: 3
   skinWidth: 0.001
   collideIterations: 2
-  col: {fileID: 0}
+  col: {fileID: 1005944673}
   collisionMask:
     serializedVersion: 2
     m_Bits: 0
@@ -643,7 +650,7 @@ GameObject:
   - component: {fileID: 1275217799}
   - component: {fileID: 1275217798}
   - component: {fileID: 1275217797}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1062,7 +1069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef89e34d97322e1429d811e9a5c87ca0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveDirection: {x: 0, y: 0}
+  _moveDirection: {x: 0, y: 0, z: 0}
   _moveTarget: {fileID: 0}
   _moveVectorRotation: 0
   _lookTarget: {fileID: 0}
@@ -1338,11 +1345,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad0da6c801c9fa04c9246ef7601cda9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveDirection: {x: 0, y: 0}
+  _moveDirection: {x: 0, y: 0, z: 0}
   _moveTarget: {fileID: 0}
   _moveVectorRotation: 0
   _lookTarget: {fileID: 0}
   _lookSpeed: 8
+  targetNode: {x: 0, y: 0, z: 0}
+  currentNode: {x: 0, y: 0, z: 0}
+  waypoints: []
+  visitedWaypoints: []
+  _waypointMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  _waypointMaterial: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  _visitedWaypointMaterial: {fileID: 0}
 --- !u!114 &2094284130
 MonoBehaviour:
   m_ObjectHideFlags: 0

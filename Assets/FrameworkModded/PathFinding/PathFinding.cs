@@ -11,13 +11,11 @@ public class PathFinding : MonoBehaviour
     [SerializeField]
     LayerMask wallMask;
 
-
     private void Awake()
     {
         requestManager = GetComponent<PathRequestManager>();
         grid = GetComponent<GridComponent>();
     }
-
 
     public void StartFindPath(Vector3 startPos, Vector3 targetPos)
     {

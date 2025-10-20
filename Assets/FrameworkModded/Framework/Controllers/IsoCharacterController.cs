@@ -11,7 +11,7 @@ public class IsoCharacterController : MonoBehaviour
     protected ModelComponent _ModelComponent;
 
     // Variables
-    [SerializeField] protected Vector2 _moveDirection = Vector2.zero;
+    [SerializeField] protected Vector3 _moveDirection = Vector3.zero;
     [SerializeField] protected Transform _moveTarget;
     [SerializeField] protected Vector3? _movePosition;
 
@@ -88,6 +88,11 @@ public class IsoCharacterController : MonoBehaviour
         {
             _MovementComponent.SetMoveVector(moveVector);
         }
+    }
+
+    protected virtual void Move(Vector3 moveVector)
+    {
+        Move(new Vector2(moveVector.x, moveVector.z));
     }
 
     // TO DO

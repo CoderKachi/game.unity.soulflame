@@ -6,16 +6,18 @@ public class GridComponent : MonoBehaviour
 {
     public bool displayGridGizmos;
     public LayerMask unwalkableMask, floorMask;
-    public Vector2 gridWorldSize;
-    public float nodeRadius, nodeSkin;
-    public TerrainType[] walkableReigons;
+    public Vector2 gridWorldSize = new Vector2(100, 100);
+    public float nodeRadius = 0.5f;
+    public float nodeSkin = 0.45f;
+    public TerrainType[] walkableReigons = new TerrainType[0];
     LayerMask walkableMask;
     Dictionary<int, int> walkableRegionDict = new Dictionary<int, int>();
 
     Node[,] grid;
 
-    float nodeDiameter;
+    float nodeDiameter = 0.1f;
     int gridSizeX, gridSizeY;
+
     private void Awake()
     {
         nodeDiameter = nodeRadius * 2;
@@ -43,6 +45,29 @@ public class GridComponent : MonoBehaviour
             //.Add((int)Mathf.Log(region.terrainMask.value, 2), region.terrainPenalty);
         }
         return true;
+    }
+
+    public void ApplySettings(GridComponentSettings settings)
+    {
+        if (settings == null)
+        {
+            Debug.LogError("GridComponentSettings is null!");
+            return;
+        }
+
+        displayGridGizmos = settings.displayGridGizmos;
+        unwalkableMask = settings.unwalkableMask;
+        floorMask = settings.floorMask;
+        gridWorldSize = settings.gridWorldSize;
+        nodeRadius = settings.nodeRadius;
+        nodeSkin = settings.nodeSkin;
+        walkableReigons = settings.walkableRegions;
+
+        nodeDiameter = nodeRadius * 2;
+        gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
+        gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
+
+        _ = GenerateNewGrid(); // fire-and-forget
     }
 
     public int MaxSize

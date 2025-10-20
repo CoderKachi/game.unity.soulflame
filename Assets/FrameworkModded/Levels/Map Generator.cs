@@ -155,6 +155,7 @@ public class MapGenerator : MonoBehaviour
     private void OnDrawGizmos()
     {
         return;
+        /*
         if (map != null)
         {
             for (int x = 0; x < width; x++)
@@ -167,5 +168,6 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
+        */
     }
 }

@@ -14,6 +14,7 @@ public class IsoCommanderController : IsoCharacterController
     // Services
     private InputService InputService;
     private UnitService UnitService;
+    private PathfindingService PathfindingService;
 
     // Components
     protected CameraComponent _CameraComponent;
@@ -47,8 +48,10 @@ public class IsoCommanderController : IsoCharacterController
 
         InputService = Game.GetService<InputService>();
         UnitService = Game.GetService<UnitService>();
+        PathfindingService = Game.GetService<PathfindingService>();
 
         InputService.Connect("Gameplay/ActionPrimary", ActionPrimary);
+        InputService.Connect("Gameplay/ActionSecondary", ActionSecondary);
         InputService.Connect("Gameplay/ActionPrimaryModifier", ActionPrimaryModifier);
         InputService.Connect("Gameplay/Look", LookWithMouse);
         InputService.Connect("Gameplay/Move", MoveWithKeyboard);
@@ -95,7 +98,6 @@ public class IsoCommanderController : IsoCharacterController
             {
                 // Clear if not shift clicking
                 if (!_actionIsModified) _currentSelected.Clear();
-
                 IsoUnitController unit = hit.collider.gameObject.GetComponent<IsoUnitController>();
                 if (unit == null) return;
 
@@ -116,7 +118,6 @@ public class IsoCommanderController : IsoCharacterController
 
             // Clear if not shift clicking
             if (!_actionIsModified) _currentSelected.Clear();
-
             List<IsoUnitController> _units = UnitService.GetUnits();
 
             foreach (IsoUnitController unit in _units)
@@ -137,6 +138,15 @@ public class IsoCommanderController : IsoCharacterController
         }
     }
 
+    void TryMoveUnits()
+    {
+        if (_currentSelected.Count == 1)
+        {
+            _currentSelected[0].TryPathTo(_ScreenToPlaneComponent.ScreenToPlane(_currentMousePosition));
+        }
+    }
+
+    // InputAction Callbacks
     void ActionPrimary(InputAction.CallbackContext context)
     {
         switch (context.phase)
@@ -149,6 +159,18 @@ public class IsoCommanderController : IsoCharacterController
                 _dragEndPosition = _currentMousePosition;
                 _actionIsDragging = false;
                 TrySelectUnits();
+                break;
+        }
+    }
+
+    void ActionSecondary(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Performed:
+                TryMoveUnits();
+                break;
+            case InputActionPhase.Canceled:
                 break;
         }
     }
@@ -181,9 +203,11 @@ public class IsoCommanderController : IsoCharacterController
         _CameraComponent.Zoom(-context.ReadValue<float>());
     }
 
+    // Other
     void OnDestroy()
     {
         InputService.Disconnect("Gameplay/ActionPrimary", ActionPrimary);
+        InputService.Disconnect("Gameplay/ActionSecondary", ActionSecondary);
         InputService.Disconnect("Gameplay/Look", LookWithMouse);
         InputService.Disconnect("Gameplay/Move", MoveWithKeyboard);
         InputService.Disconnect("Gameplay/Scroll", Zoom);
